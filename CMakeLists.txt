@@ -18,29 +18,29 @@ file(GLOB_RECURSE SOURCE_FILES "${CMAKE_CURRENT_LIST_DIR}/*.cpp")
 add_library(Common ${SOURCE_FILES} ${HEADER_FILES})
 
 if(LINUX)
-
   target_link_libraries(Common PUBLIC ${_LIB_RT})
   target_link_options(Common PUBLIC -lrt)
-
 endif()
 
 target_include_directories(
-  Common
-  PUBLIC # JASP
-         # R
-         ${R_INCLUDE_PATH}
-         ${R_HOME_PATH}/include
-         ${RCPP_PATH}/include
+	Common
+	PUBLIC # JASP
+	 # R
+	 ${R_INCLUDE_PATH}
+	 ${R_HOME_PATH}/include
+	 ${RCPP_PATH}/include
 	)
 
 target_link_libraries(
-  Common
-  PUBLIC # jsoncpp
-         #$<$<BOOL:${USE_CONAN}>:jsoncpp::jsoncpp>
-		 #$<$<PLATFORM_ID:Linux>:${_PKGCONFIG_LIB_JSONCPP_LIBRARIES}>
-		 #$<$<PLATFORM_ID:Linux>:${_PKGCONFIG_LIB_JSONCPP_LINK_LIBRARIES}>
-         #
-         $<$<BOOL:${JASP_USES_QT_HERE}>:Qt::Core>)
+	Common
+	PUBLIC
+	Boost::system
+	Boost::date_time
+	Boost::timer
+	Boost::chrono
+	$<$<BOOL:${WINDOWS}>:ntdll>
+	$<$<BOOL:${JASP_USES_QT_HERE}>:Qt::Core>
+  )
 
 target_compile_definitions(
   Common PUBLIC $<$<BOOL:${JASP_USES_QT_HERE}>:JASP_USES_QT_HERE>
@@ -48,7 +48,6 @@ target_compile_definitions(
 				JSONCPP_NO_LOCALE_SUPPORT	)
 
 if(WINDOWS)
-
   target_compile_definitions(
     Common
     PUBLIC NOMINMAX
@@ -56,8 +55,7 @@ if(WINDOWS)
 endif()
 
 if(IWYU_EXECUTABLE AND RUN_IWYU)
-  set_target_properties(Common PROPERTIES CXX_INCLUDE_WHAT_YOU_USE
-                                          ${IWYU_EXECUTABLE})
+  set_target_properties(Common PROPERTIES CXX_INCLUDE_WHAT_YOU_USE ${IWYU_EXECUTABLE})
 endif()
 
 list(POP_BACK CMAKE_MESSAGE_CONTEXT)

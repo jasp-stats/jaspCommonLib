@@ -8,10 +8,8 @@
 #include <algorithm>
 #include <locale>
 #include <cctype>
-
-typedef std::set<std::string>		stringset;
-typedef std::vector<std::string>	stringvec;
-typedef std::vector<stringvec>		stringvecvec;
+#include <iostream>
+#include "utils.h"
 
 /// This class groups a variety of string related utility functions for use throughout JASP
 /// All functions are inline and here to avoid problems through the mixing of MSVC and GCC on Windows. 
@@ -19,72 +17,72 @@ typedef std::vector<stringvec>		stringvecvec;
 class stringUtils
 {
 public:    
-    inline static std::string stripRComments(const std::string & rCode)
-    {
-        std::stringstream out;
+	inline static std::string stripRComments(const std::string & rCode)
+	{
+		std::stringstream out;
 
-        //Fixes https://github.com/jasp-stats/INTERNAL-jasp/issues/72
-        //Gotta do some rudimentary parsing here... A comment starts with # and ends with newline, but if a # is inside a string then it doesn't start a comment...
-        //String are started with ' or "
+		//Fixes https://github.com/jasp-stats/INTERNAL-jasp/issues/72
+		//Gotta do some rudimentary parsing here... A comment starts with # and ends with newline, but if a # is inside a string then it doesn't start a comment...
+		//String are started with ' or "
 
-        enum class status { R, Comment, SingleStr, DoubleStr };
+		enum class status { R, Comment, SingleStr, DoubleStr };
 
-        status curStatus = status::R;
+		status curStatus = status::R;
 
-        for(size_t r=0; r<rCode.size(); r++)
-        {
-            bool pushMe = true;
+		for(size_t r=0; r<rCode.size(); r++)
+		{
+			bool pushMe = true;
 
-            char kar = rCode[r];
+			char kar = rCode[r];
 
-            switch(curStatus)
-            {
-            case status::R:
-                switch(kar)
-                {
-                case '\'':	curStatus = status::SingleStr;	break;
-                case '"':	curStatus = status::DoubleStr;	break;
-                case '#':
-                    curStatus	= status::Comment;
-                    pushMe		= false;
-                    break;
-                }
-                break;
+			switch(curStatus)
+			{
+			case status::R:
+				switch(kar)
+				{
+				case '\'':	curStatus = status::SingleStr;	break;
+				case '"':	curStatus = status::DoubleStr;	break;
+				case '#':
+					curStatus	= status::Comment;
+					pushMe		= false;
+					break;
+				}
+				break;
 
-            case status::Comment:
-                if(kar == '\n')	curStatus	= status::R;
-                else			pushMe		= false;
-                break;
+			case status::Comment:
+				if(kar == '\n')	curStatus	= status::R;
+				else			pushMe		= false;
+				break;
 
-            case status::SingleStr:
-                if(kar == '\'' && rCode[r - 1] != '\\')
-                    curStatus = status::R;
-                break;
+			case status::SingleStr:
+				if(kar == '\'' && rCode[r - 1] != '\\')
+					curStatus = status::R;
+				break;
 
-            case status::DoubleStr:
-                if(kar == '"' && rCode[r - 1] != '\\')
-                    curStatus = status::R;
-                break;
-            }
+			case status::DoubleStr:
+				if(kar == '"' && rCode[r - 1] != '\\')
+					curStatus = status::R;
+				break;
+			}
 
-            if(pushMe)
-                out << kar;
-        }
+			if(pushMe)
+				out << kar;
+		}
 
-        return out.str();
-    }
+		return out.str();
+	}
 
     inline static std::vector<std::string> splitString(const std::string & str, const char sep = ',')
     {
-        std::vector<std::string>	vecString;
-        std::string					item;
-        std::stringstream			stringStream(str);
+        stringvec			vecString;
+        std::string			item;
+        std::stringstream	stringStream(str);
 
-        while (std::getline(stringStream, item, sep))
-            vecString.push_back(item);
+		while (std::getline(stringStream, item, sep))
+			vecString.push_back(item);
 
-        return vecString;
-    }
+		return vecString;
+	}
 
 	inline static std::string toLower(std::string input)
 	{
@@ -94,23 +92,33 @@ public:
 
 	inline static std::string replaceBy(std::string input, const std::string & replaceThis, const std::string & withThis)
 	{
+		//std::cout << "replaceBy('" << input << "', '" << replaceThis << "', '" << withThis << "');" << std::endl;
+
 		size_t	oldLen = replaceThis.size(),
 				newLen = withThis.size();
 
-		for(std::string::size_type curPos = input.find_first_of(replaceThis); curPos + oldLen < input.size() && curPos != std::string::npos; curPos = input.find_first_of(replaceThis, curPos))
-		{
+		for	(	std::string::size_type curPos = input.find(replaceThis)
+			;	curPos + oldLen <= input.size() && curPos != std::string::npos
+			;	curPos = input.find(replaceThis, curPos+newLen)
+		)
 			input.replace(curPos, oldLen, withThis);
-			curPos += newLen;
-		}
 
 		return input;
 	}
 
 	inline static std::string escapeHtmlStuff(std::string input)
 	{
-		input = replaceBy(input, "&", "&amp;");
-		input = replaceBy(input, "<", "&lt;");
-		input = replaceBy(input, ">", "&gt;");
+		input = replaceBy(input,	"&", 				"&amp;"	);
+		input = replaceBy(input,	"<", 				"&lt;"	);
+		input = replaceBy(input,	">", 				"&gt;"	);
+		input = replaceBy(input,	"&lt;sub&gt;",		"<sub>"	);
+		input = replaceBy(input,	"&lt;/sub&gt;",		"</sub>");
+		input = replaceBy(input,	"&lt;sup&gt;",		"<sup>"	);
+		input = replaceBy(input,	"&lt;/sup&gt;",		"</sup>");
+		input = replaceBy(input,	"&lt;b&gt;",		"<b>"	);
+		input = replaceBy(input,	"&lt;/b&gt;",		"</b>"	);
+		input = replaceBy(input,	"&lt;i&gt;",		"<i>"	);
+		input = replaceBy(input,	"&lt;/i&gt;",		"</i>"	);
 
 		return input;
 	}
@@ -134,23 +142,26 @@ public:
 	// Blatantly taken from https://stackoverflow.com/a/217605
 
 	// trim from start (in place)
-	static inline void ltrim(std::string &s) {
+	static inline std::string ltrim(std::string &s) {
 		s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](int ch) {
 			return !std::isspace(ch);
 		}));
+		return s;
 	}
 
 	// trim from end (in place)
-	static inline void rtrim(std::string &s) {
+	static inline std::string rtrim(std::string &s) {
 		s.erase(std::find_if(s.rbegin(), s.rend(), [](int ch) {
 			return !std::isspace(ch);
 		}).base(), s.end());
+		return s;
 	}
 
 	// trim from both ends (in place)
-	static inline void trim(std::string &s) {
+	static inline std::string trim(std::string &s) {
 		ltrim(s);
 		rtrim(s);
+		return s;
 	}
 
 	// trim from start (copying)
@@ -196,7 +207,7 @@ public:
 	}
 
 private:
-    stringUtils();
+	stringUtils();
 };
 
 #endif // STRINGUTILS_H

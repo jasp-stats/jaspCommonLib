@@ -12,7 +12,9 @@
 #include <codecvt>
 #include <fstream>
 
-static std::ofstream _logFile;// = bofstream();
+std::ofstream Log::_logFile;// = bofstream();
+
+std::ostream* Log::_nullStream = &std::cout;
 
 std::string Log::logFileNameBase	= "";
 
@@ -74,9 +76,10 @@ void Log::setLogFileName(const std::string & filePath)
 		redirectStdOut();
 }
 
-void Log::initRedirects()
+void Log::init(std::ostream* nullStream)
 {
 	_where			= _default;
+	_nullStream		= nullStream;
 }
 
 void Log::redirectStdOut()
@@ -146,7 +149,7 @@ const char * Log::getTimestamp()
 		min		= durationMin	% 60,
 		hour	= durationHour	% 60;
 
-	std::sprintf(buf, "%02u:%02u:%02u.%03u", hour, min, sec, milli);
+	std::snprintf(buf, 13, "%02u:%02u:%02u.%03u", hour, min, sec, milli);
 
 	return buf;
 }
@@ -155,16 +158,10 @@ std::ostream & Log::log(bool addTimestamp)
 {
 	switch(_where)
 	{
-#ifndef __clang__
-#ifdef __GNUG__
-	default:				//Gcc is stupid and is not aware that the next three cases cover all
-#endif
-#endif
-/*	case logType::null:
+	case logType::null:
 	{
-		static boost::iostreams::stream<boost::iostreams::null_sink> nullstream((boost::iostreams::null_sink())); //https://stackoverflow.com/questions/8243743/is-there-a-null-stdostream-implementation-in-c-or-libraries
-		return nullstream;
-	} */
+		return *_nullStream;
+	}
 	case logType::file:
 	{
 		if (addTimestamp) _logFile << Log::getTimestamp() << ": ";

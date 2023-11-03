@@ -32,16 +32,9 @@
 #include <codecvt>
 #include <regex>
 #include <iomanip>
+#include <chrono>
 
 using namespace std;
-
-std::string Utils::doubleToString(double dbl, int precision)
-{
-	std::stringstream conv; //Use this instead of std::to_string to make sure there are no trailing zeroes (and to get full precision)
-	conv << std::setprecision(precision);
-	conv << dbl;
-	return conv.str();
-}
 
 Utils::FileType Utils::getTypeFromFileName(const std::string &path)
 {
@@ -69,16 +62,12 @@ Utils::FileType Utils::getTypeFromFileName(const std::string &path)
 
 long Utils::currentMillis()
 {
-	std::timespec ts;
-	std::timespec_get(&ts, TIME_UTC);
-	return ts.tv_sec * 1000 + (ts.tv_nsec / 1000000);
+	return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 }
 
 long Utils::currentSeconds()
 {
-	std::timespec ts;
-	std::timespec_get(&ts, TIME_UTC);
-	return ts.tv_sec;
+	return std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 }
 
 long Utils::getFileModificationTime(const std::string &filename)
@@ -92,15 +81,15 @@ long Utils::getFileModificationTime(const std::string &filename)
 
 	FILETIME modTime;
 
-	bool success = GetFileTime(file, NULL, NULL, &fileTime);
+	bool success = GetFileTime(file, NULL, NULL, &modTime);
 	CloseHandle(file);
 
 	if (success)
 	{
 		LARGE_INTEGER li;
 		ULONG         seconds;
-		li.QuadPart = fileTime->dwHighDateTime;
-		li.QuadPart = (li.QuadPart << 32) | fileTime->dwLowDateTime;
+		li.QuadPart = modTime.dwHighDateTime;
+		li.QuadPart = (li.QuadPart << 32) | modTime.dwLowDateTime;
 		RtlTimeToSecondsSince1970(&li, &seconds);
 
 		return seconds;
@@ -232,16 +221,15 @@ void Utils::sleep(int ms)
 #endif
 }
 
-
 bool Utils::isEqual(const double a, const double b)
 {
-	if (isnan(a) || isnan(b)) return false;
+	if (isnan(a) || isnan(b)) return (isnan(a) && isnan(b));
 
 	return (fabs(a - b) <= ( (fabs(a) < fabs(b) ? fabs(b) : fabs(a)) * std::numeric_limits<double>::epsilon()));
 }
 bool Utils::isEqual(const float a, const float b)
 {
-	if (isnan(a) || isnan(b)) return false;
+	if (isnan(a) || isnan(b)) return (isnan(a) && isnan(b));
 
 	return fabs(a - b) <= ( (fabs(a) < fabs(b) ? fabs(b) : fabs(a)) * std::numeric_limits<float>::epsilon());
 }
@@ -268,7 +256,10 @@ std::wstring Utils::getShortPathWin(const std::wstring & longPath)
 
 	length = GetShortPathName(longPath.c_str(), buffer, length);
 	if (length == 0)
+	{
+		delete[] buffer;
 		return longPath;
+	}
 
 	std::wstring shortPath(buffer, length);
 	
@@ -291,5 +282,20 @@ string Utils::wstringToString(const std::wstring & wstr)
 
 	return str;
 
+}
+
+wstring Utils::stringToWString(const std::string &str)
+{
+	std::wstring wstr;
+
+	//get size of buffer we need
+	int requiredSize = MultiByteToWideChar(CP_UTF8, 0, str.data(), -1, NULL, 0);
+	wstr.resize(requiredSize);
+
+	//convert it
+	MultiByteToWideChar(CP_UTF8, 0, str.data(), -1, wstr.data(), wstr.size());
+	wstr.resize(requiredSize-1);//drop /nul
+
+	return wstr;
 }
 #endif
