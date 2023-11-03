@@ -32,15 +32,12 @@ target_include_directories(
 	)
 
 target_link_libraries(
-        jaspCommon
-	PUBLIC
-	Boost::system
-	Boost::date_time
-	Boost::timer
-	Boost::chrono
-	$<$<BOOL:${WINDOWS}>:ntdll>
-	$<$<BOOL:${JASP_USES_QT_HERE}>:Qt::Core>
-  )
+        Common
+        PUBLIC
+        $<$<BOOL:${PROFILE_JASP}>:Boost::timer>
+        $<$<BOOL:${WINDOWS}>:ntdll>
+        $<$<BOOL:${JASP_USES_QT_HERE}>:Qt::Core>
+)
 
 target_compile_definitions(
   jaspCommon PUBLIC $<$<BOOL:${JASP_USES_QT_HERE}>:JASP_USES_QT_HERE>
