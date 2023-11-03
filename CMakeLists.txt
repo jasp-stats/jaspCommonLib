@@ -1,12 +1,12 @@
-# This will build the Common library
+# This will build the jaspCommon library
 #
 # On Linux,
 #   - We need to link to the `librt.so`, and for some reason, CMake cannot find it
-#     easily, so, Libraries module tries to find it and provides it to Common here.
+#     easily, so, Libraries module tries to find it and provides it to jaspCommon here.
 #   - Since we are not using Conan, I link to the libjsoncpp, using the PkgConfig variables
 #
 #
-list(APPEND CMAKE_MESSAGE_CONTEXT Common)
+list(APPEND CMAKE_MESSAGE_CONTEXT jaspCommon)
 
 configure_file(${CMAKE_CURRENT_LIST_DIR}/appinfo.cpp.in
                ${CMAKE_CURRENT_LIST_DIR}/appinfo.cpp)
@@ -15,15 +15,15 @@ message(STATUS "appinfo.cpp is successfully generated...")
 file(GLOB_RECURSE HEADER_FILES "${CMAKE_CURRENT_LIST_DIR}/*.h")
 file(GLOB_RECURSE SOURCE_FILES "${CMAKE_CURRENT_LIST_DIR}/*.cpp")
 
-add_library(Common ${SOURCE_FILES} ${HEADER_FILES})
+add_library(jaspCommon ${SOURCE_FILES} ${HEADER_FILES})
 
 if(LINUX)
-  target_link_libraries(Common PUBLIC ${_LIB_RT})
-  target_link_options(Common PUBLIC -lrt)
+  target_link_libraries(jaspCommon PUBLIC ${_LIB_RT})
+  target_link_options(jaspCommon PUBLIC -lrt)
 endif()
 
 target_include_directories(
-	Common
+        jaspCommon
 	PUBLIC # JASP
 	 # R
 	 ${R_INCLUDE_PATH}
@@ -32,7 +32,7 @@ target_include_directories(
 	)
 
 target_link_libraries(
-	Common
+        jaspCommon
 	PUBLIC
 	Boost::system
 	Boost::date_time
@@ -43,19 +43,19 @@ target_link_libraries(
   )
 
 target_compile_definitions(
-  Common PUBLIC $<$<BOOL:${JASP_USES_QT_HERE}>:JASP_USES_QT_HERE>
+  jaspCommon PUBLIC $<$<BOOL:${JASP_USES_QT_HERE}>:JASP_USES_QT_HERE>
                 $<$<BOOL:${JASP_TIMER_USED}>:PROFILE_JASP>
 				JSONCPP_NO_LOCALE_SUPPORT	)
 
 if(WINDOWS)
   target_compile_definitions(
-    Common
+    jaspCommon
     PUBLIC NOMINMAX
            WIN32_LEAN_AND_MEAN)
 endif()
 
 if(IWYU_EXECUTABLE AND RUN_IWYU)
-  set_target_properties(Common PROPERTIES CXX_INCLUDE_WHAT_YOU_USE ${IWYU_EXECUTABLE})
+  set_target_properties(jaspCommon PROPERTIES CXX_INCLUDE_WHAT_YOU_USE ${IWYU_EXECUTABLE})
 endif()
 
 list(POP_BACK CMAKE_MESSAGE_CONTEXT)
