@@ -24,12 +24,12 @@
 #include "appinfo.h"
 #include <sstream> 
 
-const Version AppInfo::version = Version(0, 18, 1, 0);
+const Version AppInfo::version = Version(, , , );
 const std::string AppInfo::name = "JASP";
 const std::string AppInfo::builddate = __DATE__ " " __TIME__ " (Netherlands)" ;
 
-const std::string AppInfo::gitBranch = "development";
-const std::string AppInfo::gitCommit = "169c3f0d1d40a95d1af9463d8adbf2e04ffd70c2";
+const std::string AppInfo::gitBranch = "";
+const std::string AppInfo::gitCommit = "";
 
 std::string AppInfo::getShortDesc()
 {
@@ -44,25 +44,25 @@ std::string AppInfo::getBuildYear()
 
 std::string AppInfo::getRVersion()
 {
-	return "4.3";
+	return "";
 }
 
 std::string AppInfo::getRDirName()
 {
-	return "4.3-arm64";
+	return "";
 }
 
 std::string AppInfo::getSigningIdentity()
 {
-	return "AWJJ3YVK9B";
+	return "";
 }
 
 std::string AppInfo::getArchLabel()
 {
-	return "Apple Silicon";
+	return "";
 }
 
 long long AppInfo::getSimpleCryptKey()
 {
-	return 0x0c2ad4a4acb9f023;
+	return ;
 }

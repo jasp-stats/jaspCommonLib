@@ -34,6 +34,10 @@
 #include <iomanip>
 #include <chrono>
 
+#ifndef JASP_USES_QT_HERE
+#include <cmath>
+#endif
+
 using namespace std;
 
 Utils::FileType Utils::getTypeFromFileName(const std::string &path)
