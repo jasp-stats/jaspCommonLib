@@ -49,19 +49,19 @@ target_include_directories(
 
 target_link_libraries(
     Common PUBLIC
-        Boost::system
-        Boost::date_time
-        Boost::timer
-        Boost::chrono
+        #Boost::system
+        #Boost::date_time
+        #Boost::timer
+        #Boost::chrono
         $<$<BOOL:${WINDOWS}>:ntdll>
 )
 
 target_link_libraries(
     CommonQt PUBLIC
-        Boost::system
-        Boost::date_time
-        Boost::timer
-        Boost::chrono
+        #Boost::system
+        #Boost::date_time
+        #Boost::timer
+        #Boost::chrono
         $<$<BOOL:${WINDOWS}>:ntdll>
         Qt::Core
         Qt::Qml
