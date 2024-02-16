@@ -33,7 +33,7 @@ endif()
 
 target_include_directories(
     Common PUBLIC
-        # R
+        ${CMAKE_CURRENT_LIST_DIR}
         ${R_INCLUDE_PATH}
         ${R_HOME_PATH}/include
         ${RCPP_PATH}/include
@@ -41,7 +41,7 @@ target_include_directories(
 
 target_include_directories(
     CommonQt PUBLIC
-        # R
+        ${CMAKE_CURRENT_LIST_DIR}
         ${R_INCLUDE_PATH}
         ${R_HOME_PATH}/include
         ${RCPP_PATH}/include

@@ -1,0 +1,5 @@
+*.o
+CMakeLists.txt.user
+QtUtils/appdirs.h
+appinfo.cpp
+.DS_Stare
