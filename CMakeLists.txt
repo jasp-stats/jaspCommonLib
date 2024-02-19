@@ -6,7 +6,44 @@
 #   - Since we are not using Conan, I link to the libjsoncpp, using the PkgConfig variables
 #
 #
-list(APPEND CMAKE_MESSAGE_CONTEXT Common)
+list(APPEND CMAKE_MESSAGE_CONTEXT jaspCommon)
+
+message(CHECK_START "Checking for CRYPT_KEY")
+set(CRYPT_KEY
+    ""
+    CACHE STRING "")
+
+if(CRYPT_KEY STREQUAL "")
+  # Let's see if the user has set something in the environment
+  set(CRYPT_KEY $ENV{CRYPTKEY})
+
+  if(CRYPT_KEY STREQUAL "")
+
+    message(CHECK_PASS "set to default.")
+
+    set(CRYPT_KEY "0x0c2ad4a4acb9f023")
+
+  else()
+
+    message(CHECK_PASS "found in environment.")
+
+  endif()
+
+  message(STATUS "  ${CRYPT_KEY}")
+
+else()
+  message(CHECK_PASS "set by user in cmake config.")
+endif()
+
+set(JASP_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
+set(JASP_VERSION_MINOR ${PROJECT_VERSION_MINOR})
+set(JASP_VERSION_PATCH ${PROJECT_VERSION_PATCH})
+set(JASP_VERSION_TWEAK ${PROJECT_VERSION_TWEAK})
+
+set(JASP_VERSION ${CMAKE_PROJECT_VERSION})
+set(JASP_SHORT_VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR})
+
+message(STATUS "Version: ${CMAKE_PROJECT_VERSION}")
 
 configure_file(${CMAKE_CURRENT_LIST_DIR}/appinfo.cpp.in
                ${CMAKE_CURRENT_LIST_DIR}/appinfo.cpp)
