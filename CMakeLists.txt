@@ -6,7 +6,7 @@
 #   - Since we are not using Conan, I link to the libjsoncpp, using the PkgConfig variables
 #
 #
-list(APPEND CMAKE_MESSAGE_CONTEXT jaspCommon)
+list(APPEND CMAKE_MESSAGE_CONTEXT jaspCommonLib)
 
 message(CHECK_START "Checking for CRYPT_KEY")
 set(CRYPT_KEY
