@@ -94,6 +94,25 @@ QString AppDirs::bundledModulesDir()
 	return folder;
 }
 
+QString AppDirs::pluginsDir()
+{
+	QString folder;
+
+#ifdef _WIN32
+	auto env = DynamicRuntimeInfo::getInstance()->getRuntimeEnvironment();
+	bool useAppdata =  env != DynamicRuntimeInfo::MSIX;
+	folder = useAppdata ? programDir().absoluteFilePath("jaspQMLControlsPlugin") + '/' : appData(false) + "/BundledJASPModules_" + QString(AppInfo::version.asString(4).c_str()) + "_" + QString(AppInfo::gitCommit.substr(0, 7).c_str()) + "_" + QString(AppInfo::builddate.c_str()).replace(":", "-").replace(" ", "") + "/";
+#elif __APPLE__
+	 folder = programDir().absoluteFilePath("../jaspQMLControlsPlugin");
+#elif FLATPAK_USED
+	folder = "/app/bin/../Modules/";
+#else  //Normal linux build
+	folder = programDir().absoluteFilePath("../jaspQMLControlsPlugin") + '/';
+#endif
+
+	return folder;
+}
+
 QString AppDirs::processPath(const QString & path)
 {
 #ifdef _WIN32

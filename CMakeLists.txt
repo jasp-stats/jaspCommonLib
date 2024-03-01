@@ -103,6 +103,7 @@ target_link_libraries(
         Qt::Core
         Qt::Qml
         Qt::Quick
+        Qt::Widgets
 )
 
 target_compile_definitions(

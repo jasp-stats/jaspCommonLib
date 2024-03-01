@@ -41,6 +41,12 @@
 
 enum Encryption { NoEncryption, SimpleCryptEncryption };
 
+struct qmlLoadError  : public std::runtime_error
+{
+	qmlLoadError(std::string msg) : std::runtime_error(msg) {}
+	const char* what() const noexcept override;
+};
+
 //fq -> fromQt, tq -> toQt
 //tql -> toQtList (the tql is reasonable for going from a set to a vector because Qt no doubt has a QSet or something as well, which would then be reached through tq if we ever need it)
 //fqj and tqj are for from/to QtJson
@@ -86,6 +92,7 @@ void set##WHAT_TO_SET(TYPE new##WHAT_TO_SET)								\
 	}																		\
 }
 
-
+QObject * instantiateQml(							const QUrl 	& filePath, const std::string & moduleName,																		QQmlContext * ctxt = nullptr);
+QObject * instantiateQml(const QString 	& qmlTxt, 	const QUrl & url, 		const std::string & moduleName, const std::string & whatAmILoading, const std::string & filename, 	QQmlContext * ctxt = nullptr);
 
 #endif // QUTILS_H
