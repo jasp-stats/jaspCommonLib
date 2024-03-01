@@ -35,6 +35,36 @@ else()
   message(CHECK_PASS "set by user in cmake config.")
 endif()
 
+if(NOT DEFINED GIT_CURRENT_BRANCH)
+    find_package(Git)
+
+    if(GIT_FOUND AND EXISTS "${CMAKE_SOURCE_DIR}/.git")
+
+      message(CHECK_START "Retrieving the git-branch information")
+
+      execute_process(
+        COMMAND ${GIT_EXECUTABLE} rev-parse --abbrev-ref HEAD
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        OUTPUT_VARIABLE GIT_BRANCH
+        OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+      execute_process(
+        COMMAND ${GIT_EXECUTABLE} rev-parse --verify HEAD
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        OUTPUT_VARIABLE GIT_COMMIT
+        OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+      message(CHECK_PASS "done.")
+
+      set(GIT_CURRENT_BRANCH ${GIT_BRANCH})
+      set(GIT_CURRENT_COMMIT ${GIT_COMMIT})
+
+      cmake_print_variables(GIT_CURRENT_BRANCH)
+      cmake_print_variables(GIT_CURRENT_COMMIT)
+    endif()
+endif()
+
+
 set(JASP_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
 set(JASP_VERSION_MINOR ${PROJECT_VERSION_MINOR})
 set(JASP_VERSION_PATCH ${PROJECT_VERSION_PATCH})
