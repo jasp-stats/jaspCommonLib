@@ -22,6 +22,7 @@ public slots:
 	virtual void	setCurrentThemeName(QString currentThemeName)	{}
 	virtual void	setShowRSyntax(bool showRSyntax)				{}
 	virtual void	setShowAllROptions(bool showAllROptions)		{}
+	virtual bool	ALTNavModeActive()						const	{ return false; }
 
 signals:
 	void uiScaleChanged();
@@ -31,6 +32,7 @@ signals:
 	void interfaceFontChanged();
 	void showRSyntaxChanged();
 	void showAllROptionsChanged();
+	void ALTNavModeActiveChangedBase(bool ALTNavModeActive);
 
 protected:
 	static PreferencesModelBase* _singleton;
