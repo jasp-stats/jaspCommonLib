@@ -18,6 +18,7 @@ public:
 	virtual void		cleanUpForm()												{}
 	virtual bool		hasError()													{ return false; }
 	virtual bool		runOnChange()												{ return false; }
+	virtual bool		showRButton()												{ return false; }
 	virtual void		setMustBe(		std::set<std::string>						mustBe)			{}
 	virtual void		setMustContain(	std::map<std::string,std::set<std::string>> mustContain)	{}
 	virtual void		setHasVolatileNotes(bool hasVolatileNotes)					{}
