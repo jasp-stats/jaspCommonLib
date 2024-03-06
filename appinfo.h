@@ -20,7 +20,7 @@
 
 #include "version.h"
 
-
+///
 ///
 /// Some useful static information about JASP, when was it build and from what. Etc.
 ///
