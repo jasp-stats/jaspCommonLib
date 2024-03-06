@@ -41,7 +41,7 @@ public:
 	enum IconType { DefaultIconType, DisabledIconType, InactiveIconType };
 
 public:
-	VariableInfo(VariableInfoProvider* provider);
+	VariableInfo(VariableInfoProvider* provider, QObject* parent = nullptr);
 
 	Q_PROPERTY(int	rowCount		READ rowCount		NOTIFY rowCountChanged		)
 	Q_PROPERTY(bool	dataAvailable	READ dataAvailable	NOTIFY dataAvailableChanged	)
@@ -75,7 +75,6 @@ class VariableInfoProvider
 {
 public:
 	virtual QVariant				provideInfo(VariableInfo::InfoType info, const QString& name = "", int row = 0)	const	= 0;
-	virtual QAbstractItemModel*		providerModel()																			{ return nullptr;			}
 	virtual QQmlContext*			providerQMLContext()															const	= 0;
 };
 
@@ -86,8 +85,7 @@ public:
 }
 
 	QVariant				requestInfo(VariableInfo::InfoType info, const QString &name = "", int row = 0)	const	{ return _provider ? _provider->provideInfo(info, name, row)	: QVariant();	}
-	bool					isInfoProviderModel(QObject* model)												const	{ return _provider ? model == _provider->providerModel()		: false;		}
-	QAbstractItemModel*		infoProviderModel()																		{ return _provider ? _provider->providerModel()					: nullptr;		}
+	VariableInfoProvider*	infoProvider()																			{ return _provider;	}
 
 private:
 	VariableInfoProvider *_provider = nullptr;

@@ -5,8 +5,8 @@
 
 VariableInfo* VariableInfo::_singleton = nullptr;
 
-VariableInfo::VariableInfo(VariableInfoProvider* providerInfo) :
-	QObject(providerInfo->providerModel()), _provider(providerInfo)
+VariableInfo::VariableInfo(VariableInfoProvider* providerInfo, QObject* parent) :
+	QObject(parent), _provider(providerInfo)
 {
 	if (_singleton == nullptr)
 	{
