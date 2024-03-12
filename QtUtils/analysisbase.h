@@ -25,7 +25,7 @@ public:
 			: name(_name), key(_key), value(_value) {}
 	};
 
-	explicit AnalysisBase(QObject *parent = nullptr, Version moduleVersion = AppInfo::version);
+	explicit AnalysisBase(QObject *parent = nullptr, Version moduleVersion = AppInfo::version, const QString& moduleName = "", const QString& analysisName = "", const QString& qmlFileName = "");
 	AnalysisBase(QObject *parent, AnalysisBase* duplicateMe);
 
 	virtual bool isOwnComputedColumn(const std::string &col)				const	{ return false; }
@@ -36,8 +36,9 @@ public:
 	virtual bool isDuplicate()												const	{ return false;				}
 	virtual bool wasUpgraded()												const	{ return false;				}
 	virtual bool needsRefresh()												const	{ return false;				}
-	virtual const std::string & module()									const	{ return emptyString;		}
-	virtual const std::string & name()										const	{ return emptyString;		}
+	virtual const std::string & module()									const	{ return _moduleName;		}
+	virtual const std::string & name()										const	{ return _analysisName;		}
+	virtual const std::string & qmlFileName()								const	{ return _qmlFileName;		}
 	virtual const std::string & title()										const	{ return emptyString;		}
 	virtual void setTitle(const std::string& titel)									{}
 	virtual void preprocessMarkdownHelp(const QString& md)					const	{}
@@ -96,6 +97,9 @@ protected:
 	QQuickItem	*		_parentItem			= nullptr;
 	QString				_qmlError;
 	Version				_moduleVersion;
+	std::string			_qmlFileName,
+						_analysisName,
+						_moduleName;
 
 private:
 	Json::Value			_boundValues		= Json::objectValue,

@@ -5,9 +5,12 @@
 const std::string AnalysisBase::emptyString;
 const stringvec AnalysisBase::emptyStringVec;
 
-AnalysisBase::AnalysisBase(QObject* parent, Version moduleVersion)
+AnalysisBase::AnalysisBase(QObject* parent, Version moduleVersion, const QString& moduleName, const QString& analysisName, const QString& qmlFileName)
 	: QObject(parent)
 	, _moduleVersion(moduleVersion)
+	, _moduleName(fq(moduleName))
+	, _analysisName(fq(analysisName))
+	, _qmlFileName(fq(qmlFileName))
 {
 }
 
