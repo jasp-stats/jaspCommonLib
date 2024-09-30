@@ -31,7 +31,7 @@ public:
 	struct encodingError  : public std::runtime_error
 	{
 		encodingError(const std::string & versionStr) : std::runtime_error("Module version not understood: " + versionStr) {}
-		const char* what() const _NOEXCEPT override;
+		const char* what() const noexcept override;
 	};
 
 	Version(const char * version);

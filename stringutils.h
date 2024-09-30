@@ -72,7 +72,7 @@ public:
 		return out.str();
 	}
 
-    inline static std::vector<std::string> splitString(const std::string & str, const char sep = ',')
+	inline static std::vector<std::string> split(const std::string & str, const char sep = ',')
     {
         stringvec			vecString;
         std::string			item;
@@ -82,6 +82,18 @@ public:
 			vecString.push_back(item);
 
 		return vecString;
+	}
+
+	inline static std::string join(const stringvec & strs, const std::string & sep = ",")
+	{
+		std::stringstream strm;
+
+		unsigned char howFarAreWe = 0;
+		for(const std::string & str : strs)
+			strm << (howFarAreWe++ ? sep : "") << str;
+
+		return strm.str();
+
 	}
 
 	inline static std::string toLower(std::string input)
@@ -106,19 +118,25 @@ public:
 		return input;
 	}
 
-	inline static std::string escapeHtmlStuff(std::string input)
+	inline static std::string escapeHtmlStuff(std::string input, bool doSquareBrackets = false)
 	{
-		input = replaceBy(input,	"&", 				"&amp;"	);
-		input = replaceBy(input,	"<", 				"&lt;"	);
-		input = replaceBy(input,	">", 				"&gt;"	);
-		input = replaceBy(input,	"&lt;sub&gt;",		"<sub>"	);
-		input = replaceBy(input,	"&lt;/sub&gt;",		"</sub>");
-		input = replaceBy(input,	"&lt;sup&gt;",		"<sup>"	);
-		input = replaceBy(input,	"&lt;/sup&gt;",		"</sup>");
-		input = replaceBy(input,	"&lt;b&gt;",		"<b>"	);
-		input = replaceBy(input,	"&lt;/b&gt;",		"</b>"	);
-		input = replaceBy(input,	"&lt;i&gt;",		"<i>"	);
-		input = replaceBy(input,	"&lt;/i&gt;",		"</i>"	);
+		input		= replaceBy(input,	"&", 				"&amp;"	);
+		input		= replaceBy(input,	"<", 				"&lt;"	);
+		input		= replaceBy(input,	">", 				"&gt;"	);
+		input		= replaceBy(input,	"&lt;sub&gt;",		"<sub>"	);
+		input		= replaceBy(input,	"&lt;/sub&gt;",		"</sub>");
+		input		= replaceBy(input,	"&lt;sup&gt;",		"<sup>"	);
+		input		= replaceBy(input,	"&lt;/sup&gt;",		"</sup>");
+		input		= replaceBy(input,	"&lt;b&gt;",		"<b>"	);
+		input		= replaceBy(input,	"&lt;/b&gt;",		"</b>"	);
+		input		= replaceBy(input,	"&lt;i&gt;",		"<i>"	);
+		input		= replaceBy(input,	"&lt;/i&gt;",		"</i>"	);
+		
+		if(doSquareBrackets)
+		{
+			input	= replaceBy(input,	"[", 				"&#x5B;"	);
+			input	= replaceBy(input,	"]", 				"&#x5D;"	);
+		}
 
 		return input;
 	}
@@ -163,6 +181,12 @@ public:
 		rtrim(s);
 		return s;
 	}
+	
+	static inline std::string trimAndRemoveEscapes(std::string s) {
+		ltrim(s);
+		rtrim(s);
+		return replaceBy(s, "\n", " ");
+	}
 
 	// trim from start (copying)
 	static inline std::string ltrim_copy(std::string s) {
@@ -204,6 +228,15 @@ public:
 		}
 
 		return useQuotes;
+	}
+	
+	// Counts "first bytes" and thus hopefully code points, adapted from https://stackoverflow.com/a/4063229
+	static inline uint64_t approximateVisualLength(const std::string & in)
+	{
+		uint64_t len = 0;
+		for(const char kar : in)
+			len += (kar & 0xc0) != 0x80;
+		return len;
 	}
 
 private:

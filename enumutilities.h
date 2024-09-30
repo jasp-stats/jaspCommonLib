@@ -13,7 +13,6 @@
 
 #include "stringutils.h"
 #include <algorithm>
-#include <sstream>
 #include <string>
 #include <vector>
 #include <map>
@@ -47,7 +46,9 @@ struct missingEnumVal  : public std::runtime_error
 	std::string							E##ToString(E enumVal);													\
 	const std::map<T, std::string>	&	E##ToStringMap();														\
 	const std::map<std::string, T>	&	E##FromStringMap();														\
-	bool								E##Valid(T value);
+	bool								E##Valid(T value);														\
+	bool								E##ValidName(const std::string & name);									\
+	std::vector<E>						E##ToVector();
 
 #define DECLARE_ENUM_METHODS_WITH_TYPE_BASE(E, T, ...)															\
 	std::map<T, std::string>	E##MapName(generateEnumMap<T>(#__VA_ARGS__));									\
@@ -91,9 +92,19 @@ struct missingEnumVal  : public std::runtime_error
 		return (E)E##FromNameMap.at(enumName); 																	\
 	}																											\
 	std::string E##ToString(E enumVal)		{ return ~enumVal; }												\
-	const std::map<T, std::string>	&	E##ToStringMap()		{ return E##MapName;		}					\
-	const std::map<std::string, T>	&	E##FromStringMap()		{ return E##FromNameMap;	}					\
-	bool								E##Valid(T value) { return (E##MapName.find(value) != E##MapName.end()); }
+	const std::map<T, std::string>	&	E##ToStringMap()						{ return E##MapName;				}	\
+	const std::map<std::string, T>	&	E##FromStringMap()						{ return E##FromNameMap;			}	\
+	bool								E##Valid(T value)						{ return E##MapName.count(value);	}	\
+	bool								E##ValidName(const std::string & name)	{ return E##FromNameMap.count(name);}	\
+	std::vector<E>						E##ToVector()															\
+	{																											\
+		std::vector<E> result;																					\
+		result.reserve(E##MapName.size());																		\
+		for(auto const& imap : E##MapName)																		\
+			result.push_back(E(imap.first));																	\
+		return result;																							\
+	}
+
 
 #ifdef JASP_USES_QT_HERE
 	#define DECLARE_ENUM_WITH_TYPE_HEADER(E, T, ...)																						\
@@ -107,7 +118,9 @@ struct missingEnumVal  : public std::runtime_error
 	{																																		\
 		str += E##ToQString(enumTmp);																										\
 		return str;																															\
-	}
+	}																																		\
+	typedef std::vector<E> E##Vec;																											\
+	typedef std::set<E>    E##Set;
 
 #define DECLARE_ENUM_WITH_TYPE_IMPLEMENTATION(E, T, ...)																					\
 	DECLARE_ENUM_METHODS_WITH_TYPE_BASE(E, T, __VA_ARGS__)
@@ -134,7 +147,7 @@ template <typename T> std::map<T, std::string> generateEnumMap(std::string strMa
 	STRING_REMOVE_CHAR(strMap, ' ');
 	STRING_REMOVE_CHAR(strMap, '(');
 
-	std::vector<std::string> enumTokens(stringUtils::splitString(strMap));
+	std::vector<std::string> enumTokens(stringUtils::split(strMap));
 	std::map<T, std::string> retMap;
 	T inxMap;
 
@@ -147,7 +160,7 @@ template <typename T> std::map<T, std::string> generateEnumMap(std::string strMa
 			enumName = tokenString;
 		else
 		{
-			std::vector<std::string> enumNameValue(stringUtils::splitString(tokenString, '='));
+			std::vector<std::string> enumNameValue(stringUtils::split(tokenString, '='));
 			enumName = enumNameValue[0];
 			//inxMap = static_cast<T>(enumNameValue[1]);
 #ifdef JASP_USES_QT_HERE
